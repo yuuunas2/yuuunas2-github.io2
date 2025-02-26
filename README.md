@@ -108,20 +108,19 @@
                 alert("画像を追加してください！");
                 return;
             }
-            const data = btoa(JSON.stringify(originalImages));
-            const url = `${window.location.origin}${window.location.pathname}?data=${data}`;
+            localStorage.setItem("sharedImages", JSON.stringify(originalImages));
+            const url = `${window.location.origin}${window.location.pathname}?shared=true`;
             document.getElementById("share-link").innerHTML = `<a href="${url}" target="_blank">共有リンク</a>`;
         }
 
         function loadImagesFromURL() {
             const params = new URLSearchParams(window.location.search);
-            if (params.has("data")) {
-                try {
-                    originalImages = JSON.parse(atob(params.get("data")));
+            if (params.has("shared")) {
+                const sharedData = localStorage.getItem("sharedImages");
+                if (sharedData) {
+                    originalImages = JSON.parse(sharedData);
                     images = [...originalImages];
                     saveImages();
-                } catch (e) {
-                    console.error("URLデータの読み込みに失敗しました", e);
                 }
             }
         }
