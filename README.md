@@ -43,6 +43,8 @@
     <input type="file" id="image-upload" class="upload-input" accept="image/*">
     <input type="text" id="image-text-input" placeholder="画像の説明を入力" class="upload-input">
     <button onclick="addImage()">追加</button>
+    <input type="text" id="image-url-input" placeholder="画像URLを入力" class="upload-input">
+    <button onclick="addImageFromURL()">URLから追加</button>
     <button onclick="restartRoulette()">リスタート</button>
     <button onclick="resetRoulette()">リセット</button>
     <button onclick="generateShareLink()">共有リンク作成</button>
@@ -72,9 +74,20 @@
                 const imageData = { src: e.target.result, text: textInput || `画像${images.length + 1}` };
                 originalImages.push(imageData);
                 images.push(imageData);
-                saveImages();
             };
             reader.readAsDataURL(file);
+        }
+
+        function addImageFromURL() {
+            const urlInput = document.getElementById("image-url-input").value;
+            const textInput = document.getElementById("image-text-input").value;
+            if (!urlInput) {
+                alert("画像のURLを入力してください！");
+                return;
+            }
+            const imageData = { src: urlInput, text: textInput || `画像${images.length + 1}` };
+            originalImages.push(imageData);
+            images.push(imageData);
         }
 
         function spinRoulette() {
@@ -98,7 +111,6 @@
         function resetRoulette() {
             originalImages = [];
             images = [];
-            localStorage.removeItem("savedImages");
             document.getElementById("roulette-image").src = "placeholder.jpg";
             document.getElementById("image-text").textContent = "???";
         }
@@ -108,42 +120,21 @@
                 alert("画像を追加してください！");
                 return;
             }
-            localStorage.setItem("sharedImages", JSON.stringify(originalImages));
-            const url = `${window.location.origin}${window.location.pathname}?shared=true`;
+            const data = encodeURIComponent(JSON.stringify(originalImages));
+            const url = `${window.location.origin}${window.location.pathname}?data=${data}`;
             document.getElementById("share-link").innerHTML = `<a href="${url}" target="_blank">共有リンク</a>`;
         }
 
         function loadImagesFromURL() {
             const params = new URLSearchParams(window.location.search);
-            if (params.has("shared")) {
-                const sharedData = localStorage.getItem("sharedImages");
-                if (sharedData) {
-                    originalImages = JSON.parse(sharedData);
-                    images = [...originalImages];
-                    saveImages();
-                }
-            }
-        }
-
-        function saveImages() {
-            localStorage.setItem("savedImages", JSON.stringify(originalImages));
-        }
-
-        function loadSavedImages() {
-            const savedData = localStorage.getItem("savedImages");
-            if (savedData) {
-                try {
-                    originalImages = JSON.parse(savedData);
-                    images = [...originalImages];
-                } catch (e) {
-                    console.error("ローカルデータの読み込みに失敗しました", e);
-                }
+            if (params.has("data")) {
+                originalImages = JSON.parse(decodeURIComponent(params.get("data")));
+                images = [...originalImages];
             }
         }
 
         window.onload = function() {
             loadImagesFromURL();
-            loadSavedImages();
         };
     </script>
 </body>
