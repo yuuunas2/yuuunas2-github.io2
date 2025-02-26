@@ -43,8 +43,6 @@
     <input type="file" id="image-upload" class="upload-input" accept="image/*">
     <input type="text" id="image-text-input" placeholder="画像の説明を入力" class="upload-input">
     <button onclick="addImage()">追加</button>
-    <input type="text" id="image-url-input" placeholder="画像URLを入力" class="upload-input">
-    <button onclick="addImageFromURL()">URLから追加</button>
     <button onclick="restartRoulette()">リスタート</button>
     <button onclick="resetRoulette()">リセット</button>
     <button onclick="generateShareLink()">共有リンク作成</button>
@@ -74,20 +72,9 @@
                 const imageData = { src: e.target.result, text: textInput || `画像${images.length + 1}` };
                 originalImages.push(imageData);
                 images.push(imageData);
+                generateShareLink(); // 画像を追加するたびに共有リンクを更新
             };
             reader.readAsDataURL(file);
-        }
-
-        function addImageFromURL() {
-            const urlInput = document.getElementById("image-url-input").value;
-            const textInput = document.getElementById("image-text-input").value;
-            if (!urlInput) {
-                alert("画像のURLを入力してください！");
-                return;
-            }
-            const imageData = { src: urlInput, text: textInput || `画像${images.length + 1}` };
-            originalImages.push(imageData);
-            images.push(imageData);
         }
 
         function spinRoulette() {
@@ -117,7 +104,6 @@
 
         function generateShareLink() {
             if (originalImages.length === 0) {
-                alert("画像を追加してください！");
                 return;
             }
             const data = encodeURIComponent(JSON.stringify(originalImages));
@@ -143,4 +129,3 @@
     </script>
 </body>
 </html>
-
