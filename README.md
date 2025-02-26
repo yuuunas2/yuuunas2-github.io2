@@ -130,6 +130,10 @@
             if (params.has("data")) {
                 originalImages = JSON.parse(decodeURIComponent(params.get("data")));
                 images = [...originalImages];
+                if (images.length > 0) {
+                    document.getElementById("roulette-image").src = images[0].src;
+                    document.getElementById("image-text").textContent = images[0].text;
+                }
             }
         }
 
