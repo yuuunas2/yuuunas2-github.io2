@@ -45,6 +45,8 @@
     <button onclick="addImage()">追加</button>
     <button onclick="restartRoulette()">リスタート</button>
     <button onclick="resetRoulette()">リセット</button>
+    <button onclick="generateShareLink()">共有リンク作成</button>
+    <p id="share-link"></p>
     <div class="roulette-container">
         <img id="roulette-image" class="image-display" src="placeholder.jpg" alt="?">
     </div>
@@ -101,6 +103,29 @@
             document.getElementById("image-text").textContent = "???";
         }
 
+        function generateShareLink() {
+            if (originalImages.length === 0) {
+                alert("画像を追加してください！");
+                return;
+            }
+            const data = btoa(JSON.stringify(originalImages));
+            const url = `${window.location.origin}${window.location.pathname}?data=${data}`;
+            document.getElementById("share-link").innerHTML = `<a href="${url}" target="_blank">共有リンク</a>`;
+        }
+
+        function loadImagesFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.has("data")) {
+                try {
+                    originalImages = JSON.parse(atob(params.get("data")));
+                    images = [...originalImages];
+                    saveImages();
+                } catch (e) {
+                    console.error("URLデータの読み込みに失敗しました", e);
+                }
+            }
+        }
+
         function saveImages() {
             localStorage.setItem("savedImages", JSON.stringify(originalImages));
         }
@@ -118,6 +143,7 @@
         }
 
         window.onload = function() {
+            loadImagesFromURL();
             loadSavedImages();
         };
     </script>
